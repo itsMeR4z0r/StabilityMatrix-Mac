@@ -171,12 +171,21 @@ public sealed class App : Application
 
         if (DesktopLifetime is not null)
         {
-            DesktopLifetime.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            DesktopLifetime.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
             Setup();
 
             // First time setup if needed
             var settingsManager = Services.GetRequiredService<ISettingsManager>();
+            var portableDataPath = Path.Combine(AppContext.BaseDirectory, "Data");
+
+            if (!Directory.Exists(portableDataPath))
+            {
+                Directory.CreateDirectory(portableDataPath);
+            }
+
+            settingsManager.SetLibraryDirOverride(portableDataPath);
+
             if (!settingsManager.IsEulaAccepted())
             {
                 var setupWindow = Services.GetRequiredService<FirstLaunchSetupWindow>();
